@@ -282,3 +282,22 @@ A classifier is **genuinely useful** if it could assist a community moderator in
 
 ---
 
+## AI Tool Plan
+
+### Label stress-testing (before annotation)
+
+Use Claude to generate 10 posts that sit at the boundary between two labels — specifically the analysis/hot_take boundary, which is the hardest. Provide Claude the label definitions and ask for posts where the classification is genuinely ambiguous. If any generated post can't be cleanly assigned, tighten the decision rule before annotating 200 examples.
+
+**What to look for:** Posts with one or two stats that don't build a real argument (decorative evidence), and posts with strong opinion framing but a genuinely informative statistic underneath.
+
+### Annotation assistance
+
+Optionally use an LLM to pre-label a batch of 50–80 examples by providing label definitions and unlabeled post text. Review and correct every pre-assigned label — do not skim. Track which examples were pre-labeled in the `notes` column (value: `"pre-labeled"`). This will be disclosed in the AI usage section.
+
+If pre-labeling is used, spot-check a random 10-example sample from each label group to verify Claude's assignments match the decision rules before proceeding.
+
+### Failure analysis
+
+After fine-tuning, paste the list of wrong predictions into Claude and ask it to identify common patterns — similar post length, specific label pairs being confused, sarcasm, short posts, match-specific language bleeding into general claims. Verify each pattern manually by re-reading the examples. Include whatever patterns are confirmed, and note any that were false positives from Claude's analysis, in the evaluation report.
+
+---
