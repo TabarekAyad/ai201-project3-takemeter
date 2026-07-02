@@ -84,3 +84,39 @@ This is event-triggered (sounds like reaction) but uses verifiable tactical data
 
 ---
 
+## Data Format
+
+The dataset is a single CSV file (`data/soccer_posts.csv`) with the following columns:
+
+| Column | Type | Description |
+|---|---|---|
+| `text` | `str` | The full post or comment text as collected |
+| `label` | `str` | One of: `analysis`, `hot_take`, `reaction` |
+| `notes` | `str` | Optional: annotation notes for difficult cases; blank for clear examples |
+
+The notebook handles train/validation/test split (70% / 15% / 15%) automatically from this single file. Do not pre-split.
+
+---
+
+## Data Collection Plan
+
+**Source:** r/soccer on Reddit — public posts and top-level comments from match threads, discussion threads, and transfer threads.
+
+**Collection method:** Manual copy-paste into a spreadsheet, then export to CSV. This keeps collection time under 2 hours and keeps the annotator close to the text.
+
+**Target distribution:**
+
+| Label | Target count | % of 200 |
+|---|---|---|
+| `analysis` | 67 | ~33% |
+| `hot_take` | 67 | ~33% |
+| `reaction` | 66 | ~33% |
+
+**Collection strategy per label:**
+- `reaction`: Match threads and post-match discussion threads. These are the most abundant and easiest to find.
+- `hot_take`: Weekly discussion threads, "unpopular opinions" threads, transfer debate threads.
+- `analysis`: Tactical discussion threads, post-match analysis posts, stat-heavy comments.
+
+**Imbalance handling:** After 200 examples, if any label exceeds 70% of the dataset, collect additional examples from underrepresented labels before proceeding. `reaction` is the most likely to over-accumulate (match threads are prolific) — cap `reaction` collection at 80 examples and spend remaining quota on `analysis` and `hot_take`.
+
+---
