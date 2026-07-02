@@ -120,3 +120,43 @@ The notebook handles train/validation/test split (70% / 15% / 15%) automatically
 **Imbalance handling:** After 200 examples, if any label exceeds 70% of the dataset, collect additional examples from underrepresented labels before proceeding. `reaction` is the most likely to over-accumulate (match threads are prolific) — cap `reaction` collection at 80 examples and spend remaining quota on `analysis` and `hot_take`.
 
 ---
+
+## Pipeline / Data Flow
+
+```
+r/soccer posts (manual collection)
+         │
+         ▼
+soccer_posts.csv  ←── text + label + notes
+         │
+         ▼
+Colab Notebook — Section 1
+  Load CSV, define label map
+         │
+         ▼
+Colab Notebook — Section 2
+  Train/val/test split (70/15/15)
+  Tokenize all splits (DistilBERT tokenizer)
+         │
+         ├──────────────────────────────────┐
+         ▼                                  ▼
+Section 5 (Groq baseline)         Section 3 (Fine-tuning)
+  Zero-shot prompt                  distilbert-base-uncased
+  llama-3.3-70b-versatile           3 epochs, lr=2e-5, batch=16
+  Classify test set                 Train on train split
+         │                                  │
+         ▼                                  ▼
+  Baseline metrics                  Section 4 (Fine-tuned eval)
+  (accuracy, per-class)             Eval on test split
+         │                          confusion_matrix.png
+         └──────────────┬───────────┘
+                        ▼
+              Section 6 — Side-by-side comparison
+              evaluation_results.json
+                        │
+                        ▼
+              README evaluation report
+```
+
+---
+
