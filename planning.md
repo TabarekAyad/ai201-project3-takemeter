@@ -160,3 +160,31 @@ Section 5 (Groq baseline)         Section 3 (Fine-tuning)
 
 ---
 
+## Baseline Prompt Design
+
+The zero-shot Groq baseline (Section 5 of the notebook) classifies each test example with no task-specific training.
+
+### Task instruction
+
+```
+You are classifying posts from r/soccer by discourse type. Classify the post
+into exactly one of these three labels:
+
+- analysis: The post makes a structured argument backed by statistics,
+  historical comparison, or tactical observation. Evidence is specific
+  and verifiable.
+- hot_take: A bold, confident opinion stated without supporting evidence.
+  The claim might be true, but the post asserts rather than argues.
+- reaction: An immediate emotional response to a specific event. Little
+  to no argument — the post is expressing a feeling in the moment.
+
+Return only the label and your reasoning. Do not explain the taxonomy.
+```
+
+### Expected output format
+
+```
+Label: {label}
+Reasoning: {one sentence}
+```
+
