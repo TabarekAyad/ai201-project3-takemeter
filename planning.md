@@ -188,3 +188,21 @@ Label: {label}
 Reasoning: {one sentence}
 ```
 
+### Parsing strategy
+
+1. Split response on newlines.
+2. Find the line that starts with `"label:"` (case-insensitive after `.lower()`).
+3. Extract everything after the first colon → `.strip().lower()` → candidate label.
+4. If the candidate is not one of `{analysis, hot_take, reaction}`, mark as unparseable.
+5. If more than ~10% of responses are unparseable, tighten the prompt's output format instruction.
+
+### Edge cases in prompt design
+
+| Situation | Handling |
+|---|---|
+| Post is very short (1–2 words) | Prompt still works structurally — model will classify with lower signal. No special handling. |
+| Post contains match score or player names | These are content signals, not structural issues — no special handling needed. |
+| Model outputs preamble ("Sure! The label is…") | Parsing searches for the `Label:` line anywhere in the response, so preamble is tolerated. |
+
+---
+
