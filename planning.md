@@ -227,3 +227,58 @@ The most important hyperparameter decision: **epochs**. With only ~140 training 
 
 ---
 
+## Evaluation Metrics
+
+### Why accuracy alone is not enough
+
+Overall accuracy is a single number that hides per-class performance. On a 3-class problem with imbalanced labels, a model that always predicts `reaction` could score 45% accuracy while being completely useless. Per-class metrics reveal whether the model is learning all three distinctions or only the easiest one.
+
+### Metrics used
+
+| Metric | What it measures | Why it's needed here |
+|---|---|---|
+| Overall accuracy | Fraction of test examples correctly classified | Baseline comparison: is fine-tuning better than zero-shot? |
+| Per-class F1 | Harmonic mean of precision and recall per label | Catches a model that learns 2 of 3 labels well but fails completely on the third |
+| Confusion matrix | Which labels the model confuses and in which direction | Identifies the specific boundary the model hasn't learned |
+
+### Metric formulas
+
+```
+Precision for label X = true positives for X / (true positives for X + false positives for X)
+Recall for label X    = true positives for X / (true positives for X + false negatives for X)
+F1 for label X        = 2 * (precision * recall) / (precision + recall)
+```
+
+### Interpreting the confusion matrix
+
+Rows = true labels, columns = predicted labels. A large number at position (row=analysis, col=hot_take) means the model predicts `hot_take` when the true label is `analysis` — a specific, actionable pattern that points to the analysis/hot_take boundary being learned poorly.
+
+### Performance interpretation guide
+
+| Scenario | What it means |
+|---|---|
+| All per-class F1 ≥ 0.70 | Model is learning all three distinctions well |
+| One class F1 ≈ 0, others fine | Model can't learn that boundary — check labels and examples |
+| All classes F1 similar and low | Task may be too hard for 200 examples, or labels are inconsistent |
+| Fine-tuned barely beats baseline | Fine-tuning added little — labels may be too easy or too noisy |
+
+---
+
+## Definition of Success
+
+A classifier is **genuinely useful** if it could assist a community moderator in filtering posts by discourse type (e.g., surfacing analysis posts for a weekly digest, or flagging reactions to avoid including in a "best takes" collection).
+
+**Specific thresholds:**
+
+| Metric | Minimum acceptable | Target |
+|---|---|---|
+| Overall accuracy (fine-tuned) | > 65% | > 75% |
+| Per-class F1 (each label) | > 0.55 for all three | > 0.65 for all three |
+| Fine-tuned vs. baseline | Fine-tuned beats baseline by ≥ 10 percentage points | Fine-tuned beats by ≥ 20 pp |
+
+**What would invalidate the result:**
+- Fine-tuned model performs worse than or equal to baseline → annotation or labeling bug, investigate before reporting
+- One class has F1 = 0.0 → the boundary for that class isn't captured in the training data at all
+
+---
+
