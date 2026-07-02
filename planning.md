@@ -206,3 +206,24 @@ Reasoning: {one sentence}
 
 ---
 
+## Training Approach
+
+### Base model
+
+`distilbert-base-uncased` — a lightweight transformer fine-tuned for English text classification. 66M parameters. Fast to fine-tune on a T4 GPU (~5–15 min for 200 examples).
+
+### Training setup
+
+| Hyperparameter | Value | Reasoning |
+|---|---|---|
+| Epochs | 3 | Enough passes for 200 examples without overfitting on a small dataset |
+| Learning rate | 2e-5 | Standard for DistilBERT fine-tuning; aggressive enough to converge, conservative enough not to destroy pretrained weights |
+| Batch size | 16 | Fits T4 GPU memory comfortably; larger batches are stable but slower |
+| Max token length | 128 | Most r/soccer posts fit within 128 tokens; truncation handles outliers |
+
+### Key design decision
+
+The most important hyperparameter decision: **epochs**. With only ~140 training examples (70% of 200), 3 epochs is the safe default — fewer may underfit, more may cause the model to memorize training labels rather than generalizing. If validation accuracy plateaus before epoch 3, early stopping would be the right call; if it hasn't converged by epoch 3, one or two more epochs may help. This will be noted in the README based on actual training curves.
+
+---
+
