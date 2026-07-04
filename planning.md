@@ -301,3 +301,39 @@ If pre-labeling is used, spot-check a random 10-example sample from each label g
 After fine-tuning, paste the list of wrong predictions into Claude and ask it to identify common patterns — similar post length, specific label pairs being confused, sarcasm, short posts, match-specific language bleeding into general claims. Verify each pattern manually by re-reading the examples. Include whatever patterns are confirmed, and note any that were false positives from Claude's analysis, in the evaluation report.
 
 ---
+
+## Baseline Reflection
+
+### Results (Milestone 4)
+
+Evaluated on 31/31 parseable responses.
+
+| Model | Overall accuracy |
+|---|---|
+| Groq zero-shot baseline | 0.419 |
+
+Per-class metrics:
+
+| Label | Precision | Recall | F1 | Support |
+|---|---|---|---|---|
+| `analysis` | 1.00 | 0.30 | 0.46 | 10 |
+| `hot_take` | 0.33 | 0.40 | 0.36 | 10 |
+| `reaction` | 0.38 | 0.55 | 0.44 | 11 |
+| **macro avg** | 0.57 | 0.42 | 0.42 | 31 |
+
+### Where the baseline struggled
+
+**`analysis` is severely underpredicted (recall 0.30).** The model only identified 3 of 10 true analysis posts. The other 7 were mislabeled as `hot_take` or `reaction` -- the label that absorbed the most false positives was `hot_take` (precision 0.33 means 2 out of every 3 hot_take predictions were wrong).
+
+**`hot_take` is massively overpredicted (precision 0.33).** It is pulling in analysis posts that have opinionated framing -- exactly the analysis/hot_take boundary failure predicted in the Hard Edge Cases section.
+
+**`reaction` is moderately overpredicted (precision 0.38).** Analytical posts with emotional language are being caught as reactions.
+
+The model's `analysis` threshold is too high. Without community-specific calibration, it only fires the analysis label on unmistakably formal posts. Conversational tactical reasoning -- the dominant style in r/soccer -- reads as `hot_take` or `reaction` to a zero-shot model.
+
+### Hypothesis to test after fine-tuning
+
+1. **Fine-tuning will fix `analysis` recall first.** Seeing ~140 labeled examples of r/soccer analysis -- including conversational tactical posts -- will lower the model's threshold for that label.
+2. **The analysis/hot_take confusion will narrow but not disappear.** Posts with one decorative stat will remain the hardest boundary. Expect residual confusion there in the fine-tuned confusion matrix.
+3. **`reaction` will be the easiest class for the fine-tuned model** -- its signals (exclamations, event-anchored language, short posts) are surface-level and learnable from few examples.
+4. **Overall accuracy should exceed 65%** (the minimum threshold in Definition of Success). If it does not, the training data likely has annotation inconsistency at the analysis/hot_take boundary.
