@@ -310,7 +310,7 @@ Evaluated on 31/31 parseable responses.
 
 | Model | Overall accuracy |
 |---|---|
-| Groq zero-shot baseline | 0.419 |
+| Groq (llama-3.3-70b-versatile) zero-shot baseline | 0.419 |
 
 Per-class metrics:
 
@@ -320,6 +320,8 @@ Per-class metrics:
 | `hot_take` | 0.33 | 0.40 | 0.36 | 10 |
 | `reaction` | 0.38 | 0.55 | 0.44 | 11 |
 | **macro avg** | 0.57 | 0.42 | 0.42 | 31 |
+| weighted avg  | 0.56 | 0.42 | 0.42 |  31
+
 
 ### Where the baseline struggled
 
