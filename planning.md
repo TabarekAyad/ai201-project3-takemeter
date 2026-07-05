@@ -92,7 +92,6 @@ The dataset is a single CSV file (`data/soccer_posts.csv`) with the following co
 |---|---|---|
 | `text` | `str` | The full post or comment text as collected |
 | `label` | `str` | One of: `analysis`, `hot_take`, `reaction` |
-| `notes` | `str` | Optional: annotation notes for difficult cases; blank for clear examples |
 
 The notebook handles train/validation/test split (70% / 15% / 15%) automatically from this single file. Do not pre-split.
 
@@ -142,7 +141,7 @@ Colab Notebook — Section 2
          ▼                                  ▼
 Section 5 (Groq baseline)         Section 3 (Fine-tuning)
   Zero-shot prompt                  distilbert-base-uncased
-  llama-3.3-70b-versatile           3 epochs, lr=2e-5, batch=16
+  llama-3.3-70b-versatile           10 epochs, lr=2e-5, batch=16, warmup_steps=0
   Classify test set                 Train on train split
          │                                  │
          ▼                                  ▼
@@ -216,14 +215,15 @@ Reasoning: {one sentence}
 
 | Hyperparameter | Value | Reasoning |
 |---|---|---|
-| Epochs | 3 | Enough passes for 200 examples without overfitting on a small dataset |
+| Epochs | 10 | Increased from the initial default of 3; `load_best_model_at_end=True` captures the peak checkpoint so extra epochs do not hurt |
 | Learning rate | 2e-5 | Standard for DistilBERT fine-tuning; aggressive enough to converge, conservative enough not to destroy pretrained weights |
 | Batch size | 16 | Fits T4 GPU memory comfortably; larger batches are stable but slower |
+| Warmup steps | 0 | Set to 0 after discovering that the default of 50 exceeded the total training steps (~27 for 3 epochs), preventing the learning rate from ever reaching its target and causing loss to stay stuck at ln(3) ≈ 1.099 |
 | Max token length | 128 | Most r/soccer posts fit within 128 tokens; truncation handles outliers |
 
 ### Key design decision
 
-The most important hyperparameter decision: **epochs**. With only ~140 training examples (70% of 200), 3 epochs is the safe default — fewer may underfit, more may cause the model to memorize training labels rather than generalizing. If validation accuracy plateaus before epoch 3, early stopping would be the right call; if it hasn't converged by epoch 3, one or two more epochs may help. This will be noted in the README based on actual training curves.
+The most important hyperparameter decisions were **epochs** and **warmup_steps**. With only ~140 training examples, the model peaks early (epoch 1–2 in most runs) and overfits afterward; `load_best_model_at_end=True` saves the best checkpoint regardless, so running 10 epochs is safe. The critical fix was setting `warmup_steps=0`: the default of 50 exceeded the total training steps for 3 epochs (~27 steps), meaning the learning rate never reached its target value and loss stayed locked at ln(3) ≈ 1.099 indefinitely.
 
 ---
 
