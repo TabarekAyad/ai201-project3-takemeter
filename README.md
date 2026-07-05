@@ -4,6 +4,13 @@ A fine-tuned text classifier for r/soccer discourse quality, distinguishing **an
 
 ---
 
+## Demo
+
+- [Demo video](https://www.loom.com/share/9712154cf0304fd1b2af27ec255202b0)
+- [Extended walkthrough](https://www.loom.com/share/b55b58573feb4769b536eceb91c52d51)
+
+---
+
 ## Community
 
 **r/soccer** is one of Reddit's largest sports communities, with millions of members posting around matches, transfers, tactics, and player debates. Discourse quality varies enormously within a single thread: a stat-backed tactical breakdown, a confident claim with no supporting evidence, and a pure emotional outburst after a goal can all appear in the same reply chain. The analysis/hot_take/reaction distinction is one that community members explicitly make ("do you have stats for that?", "this is just a hot take"), which means the labels reflect real community norms rather than an imposed external taxonomy.
