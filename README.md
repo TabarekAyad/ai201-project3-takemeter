@@ -61,6 +61,12 @@ A fine-tuned text classifier for r/soccer discourse quality, distinguishing **an
 
 Split: 70% train (140) / 15% validation (30) / 15% test (31), stratified by label.
 
+### Dataset limitations
+
+**Reply comments:** Some examples are reply comments containing anaphoric references ("he", "that", "exactly") or sarcasm that only make sense with the parent comment as context. The model classifies each comment in isolation — three wrong predictions (#2, #3, #10) involve reply comments where the meaning depends on what was said above them in the thread.
+
+**Topic clustering:** The dataset draws from a small number of match threads (notably France/Norway and Korea/Klinsmann discussions). The random split does not guarantee topic diversity between train and test — examples from the same match likely appear in both. The model may have learned topic-specific shortcuts alongside discourse-type signals, making the 0.613 accuracy somewhat optimistic for entirely unseen topics or communities.
+
 ### Three difficult-to-label examples
 
 **1. Single stat + strong opinion (analysis vs. hot_take)**
@@ -214,6 +220,8 @@ The 7 hot_take/reaction errors were not predicted — planning.md identified the
 **What the model learned:** Surface features correlated with each label — numbers and comparisons signal `analysis`; brevity and informal register signal `reaction`; strong declarative assertions signal `hot_take`. These are valid proxies in most cases, which explains the 0.613 accuracy.
 
 **Where it diverges from intent:** The label definitions are structural — they describe the logical form of a post (does the evidence load-bear? does the claim form a general verdict?). The model learned stylistic proxies for those structural features. A post with a conversational opener but numerical content gets mislabeled as `reaction`. A short assertive post gets mislabeled as `reaction` if it lacks strong-opinion vocabulary. A sarcastic reaction gets mislabeled as `hot_take` because sarcasm and confidence look the same at the token level.
+
+**Topic shortcuts and reply context:** Two dataset construction issues likely contributed additional noise. First, the random split does not guarantee topic diversity — examples from the same match thread appear in both train and test, so the model may have learned match-specific vocabulary alongside discourse signals (e.g., player names or event phrases correlated with a label). Second, several examples are reply comments whose meaning depends on a parent comment the model never sees. Both issues make the 0.613 accuracy somewhat optimistic: accuracy on entirely new topics or on a more carefully de-duplicated split would likely be lower.
 
 **Hypothesis scorecard:**
 

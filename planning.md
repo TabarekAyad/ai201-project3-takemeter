@@ -118,6 +118,10 @@ The notebook handles train/validation/test split (70% / 15% / 15%) automatically
 
 **Imbalance handling:** After 200 examples, if any label exceeds 70% of the dataset, collect additional examples from underrepresented labels before proceeding. `reaction` is the most likely to over-accumulate (match threads are prolific) — cap `reaction` collection at 80 examples and spend remaining quota on `analysis` and `hot_take`.
 
+**Topic diversity:** Collect examples from multiple different matches and discussion threads rather than drawing heavily from one game. The train/val/test split is random and not topic-aware — if most examples come from the same match thread, the model may learn topic-specific vocabulary patterns (e.g., player names or match outcomes associated with a label) rather than discourse-type signals. This would inflate test accuracy on familiar topics but generalize poorly to new events.
+
+**Reply comments:** Prefer top-level comments or standalone posts where possible. Reply comments often contain anaphoric references ("he", "that", "exactly") or sarcasm that only make sense in context of the parent comment. The model classifies each comment in isolation without thread context, making reply-heavy examples harder to classify correctly and potentially noisier as training signal.
+
 ---
 
 ## Pipeline / Data Flow
